@@ -14,11 +14,11 @@ class SelfAttend(nn.Module):
         self.emb_size = embedding_size
         self.dropout = nn.Dropout(cfg.dropout)
         self.h1 = nn.Sequential(
-            nn.Linear(self.emb_size, 200),   # 全连接层 [16, 300]--->[16, 200]
+            nn.Linear(self.emb_size, 200),   
             nn.Tanh()
         )
 
-        self.gate_layer = nn.Linear(200, 1)   # [16, 200]--->[16, 1]
+        self.gate_layer = nn.Linear(200, 1)  
 
     def forward(self, seqs, seq_len, seq_masks=None):
         """
@@ -58,14 +58,13 @@ class TitleEncoder(nn.Module):
         :param seq_lens: [*]
         :return: Tuple, (1) [*, seq_length, hidden_size] (2) [*, seq_length];
         """
-        embs = self.word_embedding(seqs)    # [320, 30, 300]
-        X = self.dropout(embs)    # [320, 30, 300]
+        embs = self.word_embedding(seqs)   
+        X = self.dropout(embs)   
 
-        #  permute：将tensor的维度换位
-        X1 = X.permute(1, 0, 2)  # [30, 320, 300]
+        X1 = X.permute(1, 0, 2) 
         output1, _ = self.mh_self_attn(X1, X1, X1)
         output1 = output1.permute(1, 0, 2)
-        output1 = self.dropout(output1)  # [320, 30, 300]
+        output1 = self.dropout(output1) 
         # output = self.word_proj(output)
         X2 = X.permute(0, 2, 1)
         output2 = self.cnn(X2)
@@ -184,19 +183,19 @@ class PoEncoder(nn.Module):
         entity_embs = self.entity_embedding(entity_seq)
         X = self.dropout(entity_embs)
 
-        X = X.permute(1, 0, 2)  # 5,8192,100
+        X = X.permute(1, 0, 2)  
         output, _ = self.mh_self_attn(X, X, X)
-        output = output.permute(1, 0, 2)    # 8192,5,100
+        output = output.permute(1, 0, 2)   
         output = self.dropout(output)
-        X = X.permute(1, 0, 2)  # 8192,5,100
+        X = X.permute(1, 0, 2) 
         result0 = self.word_layer_norm(output + X)
-        result1 = result0.permute(1, 0, 2)  # 5,8192,100
+        result1 = result0.permute(1, 0, 2)  
         # output = self.word_proj(output)
-        title_embs = self.word_embedding(title_seq)  # 8192,30,300
+        title_embs = self.word_embedding(title_seq)  
         X2 = self.dropout(title_embs)
-        X2 = X2.permute(1, 0, 2)    # 30,8192,300
-        X2 = self.title_tran(X2.reshape(-1, self.cfg.word_dim)).reshape(self.cfg.max_title_len, -1, self.cfg.entity_dim)    # 30,8192,100
-        output2, _ = self.mh_self_attn(result1, X2, X2)   # 5,8192,100
+        X2 = X2.permute(1, 0, 2)   
+        X2 = self.title_tran(X2.reshape(-1, self.cfg.word_dim)).reshape(self.cfg.max_title_len, -1, self.cfg.entity_dim) 
+        output2, _ = self.mh_self_attn(result1, X2, X2) 
         output2 = output2.permute(1, 0, 2)
         output2 = self.dropout(output2)
 
@@ -223,11 +222,11 @@ class Attend(nn.Module):
         self.emb_size = embedding_size
         self.dropout = nn.Dropout(cfg.dropout)
         self.h1 = nn.Sequential(
-            nn.Linear(self.emb_size, 200),   # 全连接层 [16, 300]--->[16, 200]
+            nn.Linear(self.emb_size, 200),   
             nn.Tanh()
         )
 
-        self.gate_layer = nn.Linear(200, 1)   # [16, 200]--->[16, 1]
+        self.gate_layer = nn.Linear(200, 1)  
 
     def forward(self, seqs, seq_len, seq_masks=None):
         """
